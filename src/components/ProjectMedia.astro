@@ -1,0 +1,43 @@
+---
+import type { ProjectMedia as Media } from "../data/projects";
+
+interface Props {
+  media: Media;
+  priority?: boolean;
+}
+
+const { media, priority = false } = Astro.props;
+const image = media.kind === "image" ? media : null;
+const video = media.kind === "video" ? media : null;
+const responsiveSrcset = image?.src.startsWith("https://images.unsplash.com/")
+  ? [480, 800, 1200, 1600].map((width) => `${image.src}&w=${width} ${width}w`).join(", ")
+  : undefined;
+---
+
+<figure class="story-media">
+  {image && (
+    <img
+      src={responsiveSrcset ? `${image.src}&w=1200` : image.src}
+      srcset={responsiveSrcset}
+      sizes="(max-width: 760px) calc(100vw - 36px), (max-width: 1100px) 85vw, 900px"
+      alt={image.alt}
+      width={image.width}
+      height={image.height}
+      class:list={["story-media-image", { "story-media-contain": image.fit === "contain" }]}
+      loading={priority ? "eager" : "lazy"}
+      fetchpriority={priority ? "high" : undefined}
+      decoding="async"
+    />
+  )}
+  {video && (
+    <video controls playsinline preload="metadata" poster={video.poster}>
+      <source src={video.src} type={video.mimeType} />
+      {video.captions && <track kind="captions" src={video.captions} srclang="es" label="Español" default />}
+      Tu navegador no admite la reproducción de este video.
+    </video>
+  )}
+  <figcaption>
+    <span>{media.caption}</span>
+    {media.creditUrl && <a href={media.creditUrl} target="_blank" rel="noopener noreferrer">Fuente ↗</a>}
+  </figcaption>
+</figure>

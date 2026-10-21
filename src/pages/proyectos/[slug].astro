@@ -1,0 +1,133 @@
+---
+import "../../styles/global.css";
+import "../../styles/story.css";
+import ProjectMedia from "../../components/ProjectMedia.astro";
+import { projects, type Project } from "../../data/projects";
+
+interface Props {
+  project: Project;
+  nextProject: Project;
+  index: number;
+}
+
+export function getStaticPaths() {
+  return projects.map((project, index) => ({
+    params: { slug: project.slug },
+    props: { project, nextProject: projects[(index + 1) % projects.length], index },
+  }));
+}
+
+const { project, nextProject, index } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={`${project.title}: ${project.description} Caso de estudio de Jhovani Moreno.`} />
+    <meta name="theme-color" content="#0b1628" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{project.title} — Caso de estudio | Jhovani Moreno</title>
+  </head>
+  <body class="story-page">
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <div class="reading-progress" aria-hidden="true"><span></span></div>
+
+    <header class="story-header">
+      <nav class="story-header-inner" aria-label="Navegación del proyecto">
+        <a href="/#proyectos" class="story-back"><svg class="story-back-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m0 0 6 6m-6-6 6-6" /></svg><span>Todos los proyectos</span></a>
+        <a href="/" class="logo" aria-label="Jhovani Moreno, inicio">JM<span>.</span></a>
+        <a href={`#capitulo-${project.chapters[0].id}`} class="story-start">Empezar a leer ↓</a>
+      </nav>
+    </header>
+
+    <main id="contenido">
+      <section class="story-hero">
+        <div class="story-wrap">
+          <div class="story-hero-meta"><span>Caso de estudio 0{index + 1} / 0{projects.length}</span><span>{project.type}</span></div>
+          <h1 data-reveal="up">{project.title}<span class="story-title-dot">.</span></h1>
+          <p class="story-subtitle" data-reveal="up" data-reveal-delay="2">{project.description}</p>
+          <div class="story-hero-bottom"><span>Una historia sobre el problema, la idea y su desarrollo.</span><a href={`#capitulo-${project.chapters[0].id}`}>Explorar el proyecto <span aria-hidden="true">↓</span></a></div>
+          <ProjectMedia media={project.cover} priority />
+        </div>
+      </section>
+
+      <div class="story-wrap story-layout">
+        <aside class="story-sidebar">
+          <p class="story-sidebar-title">En esta historia</p>
+          <nav aria-label={`Capítulos de ${project.title}`}>
+            <ol>
+              {project.chapters.map((chapter, chapterIndex) => <li><a href={`#capitulo-${chapter.id}`}><span>0{chapterIndex + 1}</span>{chapter.label}</a></li>)}
+              <li><a href="#tecnologias"><span>0{project.chapters.length + 1}</span>Tecnologías</a></li>
+            </ol>
+          </nav>
+          <span class="story-sidebar-footer">Jhovani Moreno<br />Software Engineer</span>
+        </aside>
+
+        <div class="story-body">
+          {project.chapters.map((chapter, chapterIndex) => (
+            <section class="story-chapter" id={`capitulo-${chapter.id}`} aria-labelledby={`titulo-${chapter.id}`}>
+              <p class="story-chapter-kicker">Capítulo 0{chapterIndex + 1} <span aria-hidden="true">/</span> {chapter.label}</p>
+              <h2 id={`titulo-${chapter.id}`} data-reveal="up">{chapter.title}</h2>
+              <div class="story-prose" data-reveal="up">{chapter.paragraphs.map((paragraph) => <p>{paragraph}</p>)}</div>
+              {chapter.steps && (
+                <div class="story-steps" aria-label="Secuencia del proyecto">
+                  {chapter.steps.map((step, stepIndex) => <div><span>0{stepIndex + 1}</span><strong>{step}</strong></div>)}
+                </div>
+              )}
+              {chapter.media && <div class="story-gallery">{chapter.media.map((media) => <ProjectMedia media={media} />)}</div>}
+            </section>
+          ))}
+
+          <section class="story-chapter story-technology" id="tecnologias" aria-labelledby="titulo-tecnologias">
+            <p class="story-chapter-kicker">Capítulo 0{project.chapters.length + 1} <span aria-hidden="true">/</span> Tecnologías</p>
+            <h2 id="titulo-tecnologias">Las herramientas detrás de la idea.</h2>
+            <p class="story-tech-intro">Este es el stack usado en {project.title}. Las decisiones de producto y la experiencia de uso dan contexto a cada herramienta.</p>
+            <ul class="story-tech-list">{project.stack.map((technology) => <li>{technology}</li>)}</ul>
+          </section>
+        </div>
+      </div>
+
+      <section class="story-ending" aria-labelledby="siguiente-titulo">
+        <div class="story-wrap">
+          <p>Continúa explorando</p>
+          <a href={`/proyectos/${nextProject.slug}/`} aria-labelledby="siguiente-titulo">
+            <h2 id="siguiente-titulo">{nextProject.title}</h2>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <div class="story-ending-links"><a href="/#proyectos">← Volver a los proyectos</a><a href="/#contacto">Hablemos ↗</a></div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      import { initializeReveal } from "../../scripts/reveal";
+      initializeReveal();
+      const progress = document.querySelector<HTMLElement>(".reading-progress span");
+      const updateProgress = () => {
+        if (!progress) return;
+        const total = document.documentElement.scrollHeight - window.innerHeight;
+        progress.style.transform = `scaleX(${total > 0 ? window.scrollY / total : 0})`;
+      };
+      updateProgress();
+      window.addEventListener("scroll", updateProgress, { passive: true });
+      window.addEventListener("resize", updateProgress);
+
+      const chapters = document.querySelectorAll<HTMLElement>(".story-chapter");
+      const chapterLinks = document.querySelectorAll<HTMLAnchorElement>(".story-sidebar a");
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            chapterLinks.forEach((link) => {
+              if (link.getAttribute("href") === `#${entry.target.id}`) link.setAttribute("aria-current", "location");
+              else link.removeAttribute("aria-current");
+            });
+          });
+        }, { rootMargin: "-20% 0px -65% 0px" });
+        chapters.forEach((chapter) => observer.observe(chapter));
+      }
+    </script>
+  </body>
+</html>

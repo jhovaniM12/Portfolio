@@ -1,0 +1,121 @@
+---
+import "../styles/global.css";
+import { Image } from "astro:assets";
+import profile from "../images/profile.jpeg";
+import { projects } from "../data/projects";
+
+const name = "Jhovani Moreno";
+const navItems = [
+  ["inicio", "Inicio"], ["sobre-mi", "Sobre mí"], ["proyectos", "Proyectos"],
+  ["stack", "Stack"], ["experiencia", "Experiencia"], ["contacto", "Contacto"],
+];
+const skills = [
+  { category: "Frontend", items: [{ name: "React", icon: "react", color: "61DAFB" }, { name: "Next.js", icon: "nextdotjs", color: "000000" }, { name: "JavaScript", icon: "javascript", color: "F7DF1E" }, { name: "TypeScript", icon: "typescript", color: "3178C6" }, { name: "HTML5", icon: "html5", color: "E34F26" }, { name: "CSS3", icon: "css", color: "1572B6" }, { name: "Tailwind CSS", icon: "tailwindcss", color: "06B6D4" }] },
+  { category: "Backend", items: [{ name: "Node.js", icon: "nodedotjs", color: "5FA04E" }, { name: "Express", icon: "express", color: "000000" }, { name: "Python", icon: "python", color: "3776AB" }, { name: "FastAPI", icon: "fastapi", color: "009688" }] },
+  { category: "Cloud & DevOps", items: [{ name: "AWS", icon: "amazonwebservices", source: "devicon" }, { name: "Docker", icon: "docker", color: "2496ED" }, { name: "Git", icon: "git", color: "F05032" }, { name: "GitHub", icon: "github", color: "181717" }, { name: "Vercel", icon: "vercel", color: "000000" }] },
+  { category: "Bases de datos", items: [{ name: "PostgreSQL", icon: "postgresql", color: "4169E1" }, { name: "Neon", icon: "neon", color: "00E599" }, { name: "MongoDB", icon: "mongodb", color: "47A248" }] },
+];
+const certificates = ["Certificación técnica", "Formación especializada", "Aprendizaje continuo"];
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="Portafolio de Jhovani Moreno, Software Engineer y Full Stack Developer." />
+    <meta name="theme-color" content="#0b1628" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{name} — Software Engineer</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <header class="hero" id="inicio">
+      <nav class="site-nav" aria-label="Navegación principal"><div class="wrap nav-inner">
+        <a class="logo" href="#inicio" aria-label="Inicio">JM<span>.</span></a>
+        <div class="language-switch" role="group" aria-label="Idioma del portafolio: español">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.4 2.4 3.6 5.4 3.6 9s-1.2 6.6-3.6 9c-2.4-2.4-3.6-5.4-3.6-9S9.6 5.4 12 3Z" /></svg>
+          <span class="language-label">Traducir</span>
+          <span class="language-options"><span class="language-option is-current" aria-current="true">ES</span><span class="language-option">EN</span></span>
+        </div>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-links">Menú</button>
+        <div class="nav-links" id="site-links">{navItems.map(([id, label]) => <a href={`#${id}`}>{label}</a>)}</div>
+        <a class="nav-button" href="#contacto">Hablemos <span aria-hidden="true">↗</span></a>
+      </div></nav>
+      <div class="wrap hero-grid">
+        <div class="hero-copy" data-reveal="up">
+          <p class="hero-identity"><span class="hero-name">{name}</span><span class="eyebrow">Software Engineer · Full Stack Developer</span></p>
+          <h1>Transformo ideas<br />en <em>experiencias</em><br />digitales.</h1>
+          <p class="hero-lead">Desarrollo productos digitales sólidos, desde interfaces frontend hasta servicios backend, APIs y arquitectura cloud.</p>
+          <div class="actions"><a class="button primary" href="#proyectos">Ver proyectos <span>↓</span></a><a class="button outline" href="#contacto">Hablemos <span>↗</span></a></div>
+        </div>
+        <div class="portrait-wrap" data-reveal="scale" data-reveal-delay="2">
+          <div class="portrait"><Image src={profile} alt="Retrato de Jhovani Moreno" loading="eager" fetchpriority="high" /></div>
+        </div>
+      </div>
+      <div class="wrap tech-strip" data-reveal="up" data-reveal-delay="2"><span>Construyo con</span>{skills[0].items.slice(0, 3).map((skill) => <span class="tech-icon-frame"><img class="tech-icon" src={`https://cdn.simpleicons.org/${skill.icon}/${skill.color}`} alt={skill.name} title={skill.name} width="24" height="24" loading="lazy" /></span>)}<span class="tech-icon-frame"><img class="tech-icon" src="https://cdn.simpleicons.org/python/3776AB" alt="Python" title="Python" width="24" height="24" loading="lazy" /></span><span class="tech-icon-frame tech-icon-frame-aws"><img class="tech-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" alt="AWS" title="AWS" width="38" height="26" loading="lazy" /></span><div class="social-links"><a href="#contacto">GitHub ↗</a><a href="#contacto">LinkedIn ↗</a></div></div>
+    </header>
+
+    <main id="contenido">
+      <section id="sobre-mi"><div class="wrap two-col"><div data-reveal="up"><p class="section-label">01 · Sobre mí</p><h2>Software con criterio técnico y foco en el usuario.</h2></div><div class="section-copy" data-reveal="up" data-reveal-delay="2"><p class="lead-copy">Desarrollo interfaces frontend, servicios backend y APIs para plataformas SaaS, con infraestructura en la nube y automatización de procesos.</p><p>Me enfoco en resolver problemas reales, diseñar arquitecturas mantenibles y cuidar tanto la calidad técnica como la experiencia de usuario.</p><div class="principles"><div><strong>01</strong><span>Frontend</span></div><div><strong>02</strong><span>Backend y APIs</span></div><div><strong>03</strong><span>Cloud y arquitectura</span></div><div><strong>04</strong><span>Automatización</span></div></div></div></div></section>
+
+      <section class="projects-section" id="proyectos">
+        <div class="wrap">
+          <p class="section-label" data-reveal="up">02 · Proyectos</p>
+          <h2 class="section-title" data-reveal="up">Proyectos destacados</h2>
+          <div class="featured-projects">
+            {projects.map((project, index) => (
+              <article class={`featured-project featured-project-${project.theme}`} aria-labelledby={`project-title-${index}`} data-reveal="up" data-reveal-delay={index + 1}>
+                <div class="featured-project-copy">
+                  <div class="featured-project-meta"><span>0{index + 1} / 0{projects.length}</span><span>{project.type}</span></div>
+                  <h3 id={`project-title-${index}`}>{project.title}</h3>
+                  <p class="featured-project-lead">{project.description}</p>
+                  <div class="featured-project-details">
+                    <div><h4>Qué resuelve</h4><p>{project.problem}</p></div>
+                    <div><h4>Cómo funciona</h4><p>{project.solution}</p></div>
+                  </div>
+                  <ul class="featured-project-stack" aria-label={`Tecnologías de ${project.title}`}>
+                    {project.stack.map((technology) => <li>{technology}</li>)}
+                  </ul>
+                  <a class="featured-project-link" href={`/proyectos/${project.slug}/`}>Explorar caso de estudio <span aria-hidden="true">↗</span></a>
+                </div>
+                <figure class="featured-project-visual">
+                  <img
+                    src={`${project.cover.src}&w=1200`}
+                    srcset={`${project.cover.src}&w=480 480w, ${project.cover.src}&w=800 800w, ${project.cover.src}&w=1200 1200w`}
+                    sizes="(max-width: 900px) calc(100vw - 72px), 50vw"
+                    alt={project.cover.alt}
+                    width="1200"
+                    height="750"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <figcaption>Imagen ilustrativa · Unsplash</figcaption>
+                </figure>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="stack"><div class="wrap"><p class="section-label" data-reveal="up">03 · Stack</p><h2 class="section-title" data-reveal="up">Tecnologías y herramientas</h2><div class="stack-filters" role="group" aria-label="Filtrar tecnologías"><button class="filter is-active" data-filter="all" aria-pressed="true">Todo</button>{skills.map((group) => <button class="filter" data-filter={group.category} aria-pressed="false">{group.category}</button>)}</div><div class="stack-list">{skills.map((group, index) => <div class="stack-row" data-category={group.category} data-reveal="up" data-reveal-delay={index + 1}><h3>{group.category}</h3><div class="skill-grid">{group.items.map((item) => <span class="skill-card"><img src={item.source === "devicon" ? "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" : `https://cdn.simpleicons.org/${item.icon}/${item.color}`} alt="" aria-hidden="true" width="30" height="30" loading="lazy" /><span>{item.name}</span></span>)}</div></div>)}</div></div></section>
+
+      <section class="dark-section" id="certificados"><div class="wrap"><p class="section-label" data-reveal="up">04 · Certificados</p><h2 class="section-title" data-reveal="up">Certificaciones y formación</h2><div class="certificate-grid">{certificates.map((certificate, index) => <article class="certificate" data-reveal="up" data-reveal-delay={index + 1}><div class="certificate-art"><span>JM</span><small>credential 0{index + 1}</small></div><p>Jhovani Moreno</p><h3>{certificate}</h3><small>Información disponible próximamente</small><a href="#contacto">Ver credencial ↗</a></article>)}</div></div></section>
+
+      <section id="experiencia"><div class="wrap"><p class="section-label" data-reveal="up">05 · Experiencia</p><h2 class="section-title" data-reveal="up">Experiencia profesional</h2><div class="timeline"><article data-reveal="up"><small>Actualidad</small><h3>Software Engineer · Full Stack Developer</h3><p>Frontend, backend, integraciones entre sistemas, desarrollo SaaS e infraestructura cloud.</p></article><article data-reveal="up" data-reveal-delay="2"><small>Aprendizaje continuo</small><h3>Construcción de productos digitales</h3><p>Exploración constante de nuevas herramientas, patrones de arquitectura y mejores prácticas de desarrollo.</p></article></div></div></section>
+    </main>
+
+    <section class="contact-section" id="contacto"><div class="wrap contact-grid"><div data-reveal="up"><p class="section-label">06 · Contacto</p><h2>¿Tienes un proyecto <em>en mente?</em></h2><p class="contact-lead">Conversemos sobre cómo convertir tu idea en un producto sólido.</p><div class="actions"><a class="button primary" href="mailto:hola@jhovanimoreno.dev">hola@jhovanimoreno.dev ↗</a><a class="button outline" href="#inicio">Volver arriba ↑</a></div></div><form class="contact-form" id="contact-form" data-reveal="up" data-reveal-delay="2"><h3>Envíame un mensaje</h3><div class="form-grid"><label>Nombre<input name="nombre" autocomplete="name" placeholder="Tu nombre" required /></label><label>Correo electrónico<input type="email" name="correo" autocomplete="email" placeholder="tu@correo.com" required /></label></div><label>Mensaje<textarea name="mensaje" rows="5" placeholder="Cuéntame sobre tu proyecto" required></textarea></label><button class="button primary" type="submit">Enviar mensaje →</button><p class="form-status" role="status" aria-live="polite">Completa el formulario y te responderé pronto.</p></form></div><footer class="wrap footer"><span>© {new Date().getFullYear()} {name}</span><span>Cali, Colombia · Diseñado con intención.</span></footer></section>
+
+    <script>
+      import { initializeReveal } from "../scripts/reveal";
+      initializeReveal();
+      const menu = document.querySelector<HTMLButtonElement>('.menu-toggle');
+      const links = document.querySelector<HTMLElement>('.nav-links');
+      menu?.addEventListener('click', () => { const open = links?.classList.toggle('is-open') ?? false; menu.setAttribute('aria-expanded', String(open)); });
+      links?.querySelectorAll<HTMLAnchorElement>('a').forEach((link) => link.addEventListener('click', () => { links.classList.remove('is-open'); menu?.setAttribute('aria-expanded', 'false'); }));
+      document.querySelectorAll<HTMLButtonElement>('.filter').forEach((button) => button.addEventListener('click', () => { const filter = button.dataset.filter; document.querySelectorAll<HTMLButtonElement>('.filter').forEach((item) => { item.classList.toggle('is-active', item === button); item.setAttribute('aria-pressed', String(item === button)); }); document.querySelectorAll<HTMLElement>('.stack-row').forEach((row) => { row.toggleAttribute('hidden', filter !== 'all' && row.dataset.category !== filter); }); }));
+      document.querySelector<HTMLFormElement>('#contact-form')?.addEventListener('submit', (event) => { event.preventDefault(); const form = event.currentTarget as HTMLFormElement; if (!form.checkValidity()) { form.reportValidity(); return; } form.reset(); const status = form.querySelector<HTMLElement>('.form-status'); if (status) status.textContent = 'Gracias. Tu mensaje está listo para ser enviado.'; });
+    </script>
+  </body>
+</html>
