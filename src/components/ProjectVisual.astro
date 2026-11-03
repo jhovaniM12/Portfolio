@@ -1,0 +1,14 @@
+---
+import type { Project, ProjectVisualization } from "../data/projects";
+import { projectVisualizationRegistry } from "./project-visualizations/registry";
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const type: ProjectVisualization["type"] = project.visualization?.type ?? "default";
+const Visual = projectVisualizationRegistry[type];
+---
+
+<Visual project={project} />

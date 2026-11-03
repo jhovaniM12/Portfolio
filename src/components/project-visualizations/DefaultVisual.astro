@@ -1,0 +1,14 @@
+---
+import type { Project } from "../../data/projects";
+
+interface Props { project: Project }
+const { project } = Astro.props;
+const number = project.title.slice(0, 2).toUpperCase();
+---
+
+<div class={`project-visual project-visual-default project-visual-default-${project.theme}`} role="group" aria-label={`Presentación editorial de ${project.title}`}>
+  <div class="project-visual-heading"><span>{project.type}</span><span aria-hidden="true">CASE / STUDY</span></div>
+  <div class="default-visual-title" aria-hidden="true"><span>{number}</span><strong>{project.title}</strong></div>
+  <p>{project.description}</p>
+  <span class="default-visual-caption">Presentación editorial · Sin capturas de producto</span>
+</div>

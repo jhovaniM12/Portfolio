@@ -1,0 +1,41 @@
+---
+import type { Project } from "../../data/projects";
+
+interface Props { project: Project }
+const { project } = Astro.props;
+const visual = project.visualization?.type === "architecture" ? project.visualization : null;
+---
+
+{visual && (
+  <div class="project-visual project-visual-architecture" data-project-visual="architecture" data-stage="0">
+    <div class="project-visual-heading"><span>Explora la idea</span><span aria-hidden="true">SYS / 01</span></div>
+    <div class="architecture-diagram" aria-hidden="true">
+      <div class="architecture-platform"><span>SaaS · Multi-tenant</span><strong>{visual.platformLabel}</strong></div>
+      <div class="architecture-branches"><i></i><i></i></div>
+      <div class="architecture-workspaces">
+        {visual.workspaceLabels.map((workspace, index) => <div><span>Espacio de trabajo 0{index + 1}</span><strong>{workspace}</strong></div>)}
+      </div>
+      <div class="architecture-modules">
+        {visual.modules.map((module, index) => <span data-module={index}><i>0{index + 1}</i>{module}</span>)}
+      </div>
+    </div>
+    <div class="project-visual-controls" role="group" aria-label={`Explorar ${project.title}`}>
+      {visual.steps.map((step, index) => <button type="button" data-visual-step={index} aria-pressed={index === 0 ? "true" : "false"}><span>{step.label}</span><span aria-hidden="true">↗</span></button>)}
+    </div>
+    <div class="project-visual-story" aria-live="polite">
+      {visual.steps.map((step, index) => <div data-visual-panel={index} hidden={index !== 0}><strong>{step.title}</strong><p>{step.description}</p></div>)}
+    </div>
+    <p class="project-visual-caption">{visual.caption}</p>
+  </div>
+)}
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-project-visual="architecture"]').forEach((visual) => {
+    visual.querySelectorAll<HTMLButtonElement>('[data-visual-step]').forEach((button) => button.addEventListener('click', () => {
+      const step = button.dataset.visualStep;
+      visual.dataset.stage = step;
+      visual.querySelectorAll<HTMLButtonElement>('[data-visual-step]').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+      visual.querySelectorAll<HTMLElement>('[data-visual-panel]').forEach((panel) => { panel.hidden = panel.dataset.visualPanel !== step; });
+    }));
+  });
+</script>

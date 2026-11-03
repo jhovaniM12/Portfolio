@@ -28,6 +28,37 @@ export type ProjectChapter = {
   media?: ProjectMedia[];
 };
 
+export type ProjectVisualizationStep = {
+  label: string;
+  title: string;
+  description: string;
+};
+
+export type VerifiedProjectScreenshot = Extract<ProjectMedia, { kind: "image" }> & { verifiedCapture: true };
+
+export type ProjectVisualization =
+  | {
+      type: "architecture";
+      platformLabel: string;
+      workspaceLabels: [string, string];
+      modules: string[];
+      steps: ProjectVisualizationStep[];
+      caption: string;
+    }
+  | {
+      type: "graph";
+      nodes: { id: string; x: number; y: number }[];
+      edges: [string, string][];
+      exampleRoute: string[];
+      steps: ProjectVisualizationStep[];
+      caption: string;
+    }
+  | {
+      type: "gallery";
+      items: [VerifiedProjectScreenshot, ...VerifiedProjectScreenshot[]];
+    }
+  | { type: "default" };
+
 export type Project = {
   slug: string;
   title: string;
@@ -37,7 +68,9 @@ export type Project = {
   solution: string;
   stack: string[];
   theme: "dark" | "light";
-  cover: Extract<ProjectMedia, { kind: "image" }>;
+  featured?: boolean;
+  cover?: Extract<ProjectMedia, { kind: "image" }>;
+  visualization?: ProjectVisualization;
   chapters: ProjectChapter[];
 };
 
@@ -51,14 +84,18 @@ export const projects: Project[] = [
     solution: "Módulos de gestión y automatización dentro de una arquitectura multi-tenant.",
     stack: ["Next.js", "Python", "PostgreSQL", "AWS"],
     theme: "dark",
-    cover: {
-      kind: "image",
-      src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=85",
-      alt: "Pantalla con gráficos de datos, imagen ilustrativa de una plataforma de gestión",
-      caption: "Imagen ilustrativa del universo de datos del proyecto.",
-      fit: "cover",
-      width: 1200,
-      height: 750,
+    featured: true,
+    visualization: {
+      type: "architecture",
+      platformLabel: "Gestion360Pro",
+      workspaceLabels: ["Organización A", "Organización B"],
+      modules: ["Seguridad social", "Cartera y pagos", "Automatización"],
+      steps: [
+        { label: "01 · Seguridad social", title: "Información reunida", description: "La plataforma reúne procesos de administración de seguridad social en un mismo entorno." },
+        { label: "02 · Cartera y pagos", title: "Operación conectada", description: "La gestión de cartera y pagos forma parte del flujo operativo de la plataforma." },
+        { label: "03 · Automatización", title: "Menos pasos manuales", description: "La automatización acompaña tareas administrativas dentro del producto." },
+      ],
+      caption: "Vista conceptual del producto · No representa infraestructura ni una captura de pantalla.",
     },
     chapters: [
       {
@@ -81,31 +118,12 @@ export const projects: Project[] = [
         steps: ["Reunir información", "Gestionar operaciones", "Automatizar tareas"],
       },
       {
-        id: "recorrido",
-        label: "El recorrido visual",
-        title: "De los datos a decisiones más claras.",
+        id: "enfoque-tecnico",
+        label: "Enfoque técnico",
+        title: "Una plataforma para distintas organizaciones.",
         paragraphs: [
-          "Esta selección visual acompaña la historia del producto. Las fotografías actuales son ilustrativas; aquí se podrán incorporar capturas de sus pantallas y demostraciones breves.",
-        ],
-        media: [
-          {
-            kind: "video",
-            src: "https://videos.pexels.com/video-files/7651883/7651883-hd_1920_1080_30fps.mp4",
-            poster: "https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?auto=format&fit=crop&q=80&w=1200",
-            mimeType: "video/mp4",
-            caption: "Video de banco ilustrativo sobre análisis de datos; no muestra Gestion360Pro.",
-            creditUrl: "https://www.pexels.com/video/graphs-and-data-on-the-screen-of-a-laptop-7651883/",
-          },
-          {
-            kind: "image",
-            src: "https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?auto=format&fit=crop&q=85",
-            alt: "Panel de análisis de datos en una pantalla, imagen ilustrativa",
-            caption: "Referencia visual de una interfaz de análisis; no es una captura de Gestion360Pro.",
-            creditUrl: "https://unsplash.com/photos/turned-on-monitoring-screen-qwtCeJ5cLYs",
-            fit: "cover",
-            width: 1200,
-            height: 750,
-          },
+          "Gestion360Pro se plantea como un SaaS multi-tenant: una misma plataforma con espacios de trabajo separados para distintas organizaciones.",
+          "El stack documentado incluye Next.js, Python, PostgreSQL y AWS. El esquema interactivo de la apertura explica el alcance del producto; no representa la infraestructura interna ni una captura de su interfaz.",
         ],
       },
     ],
@@ -119,6 +137,23 @@ export const projects: Project[] = [
     solution: "Representar el campus como un grafo y calcular recorridos entre ubicaciones.",
     stack: ["React", "TypeScript", "Algoritmos de grafos"],
     theme: "light",
+    featured: true,
+    visualization: {
+      type: "graph",
+      nodes: [
+        { id: "A", x: 85, y: 194 }, { id: "B", x: 160, y: 109 },
+        { id: "C", x: 268, y: 138 }, { id: "D", x: 381, y: 74 },
+        { id: "E", x: 288, y: 230 }, { id: "F", x: 423, y: 192 },
+      ],
+      edges: [["A", "B"], ["A", "E"], ["B", "C"], ["B", "E"], ["C", "D"], ["C", "E"], ["D", "E"], ["D", "F"], ["E", "F"]],
+      exampleRoute: ["A", "B", "C", "D"],
+      steps: [
+        { label: "01 · Lugares", title: "Ubicaciones como puntos", description: "Los lugares del campus se representan como nodos que se pueden relacionar entre sí." },
+        { label: "02 · Conexiones", title: "Caminos como grafo", description: "Las conexiones entre lugares forman la estructura sobre la que se buscan recorridos." },
+        { label: "03 · Recorrido", title: "Una ruta entre dos puntos", description: "Un algoritmo de búsqueda permite calcular un recorrido entre ubicaciones." },
+      ],
+      caption: "Grafo y ruta de ejemplo · No representa un mapa real del campus ni una ruta publicada.",
+    },
     cover: {
       kind: "image",
       src: "https://images.unsplash.com/photo-1746390121584-ef9754f677ea?auto=format&fit=crop&q=85",
@@ -188,6 +223,7 @@ export const projects: Project[] = [
     solution: "Un tablero personal que organiza movimientos, identifica categorías y permite definir objetivos de ahorro.",
     stack: ["Astro", "TypeScript", "Supabase", "Recharts"],
     theme: "dark",
+    visualization: { type: "default" },
     cover: {
       kind: "image",
       src: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=85",
@@ -248,6 +284,7 @@ export const projects: Project[] = [
     solution: "Un catálogo compartido con disponibilidad por temporada, pedidos organizados y seguimiento de entregas.",
     stack: ["Next.js", "TypeScript", "Node.js", "PostgreSQL"],
     theme: "light",
+    visualization: { type: "default" },
     cover: {
       kind: "image",
       src: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=85",
