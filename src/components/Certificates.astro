@@ -1,0 +1,8 @@
+---
+import { certificates } from "../data/site";
+---
+<section class="alt-section" id="certificados"><div class="wrap">
+  <p class="section-label" data-reveal="up">04 · Formación</p>
+  <h2 class="section-title" data-reveal="up">Certificaciones y formación</h2>
+  <div class="certificate-grid">{certificates.map((c, i) => <article class="certificate tilt" data-tilt-max="5" data-reveal="up" data-reveal-delay={i + 1}><div class="certificate-art"><span>JM</span><small>credential 0{i + 1}</small></div><p>Jhovani Moreno</p><h3>{c}</h3><small>Información disponible próximamente</small><a href="#contacto">Ver credencial ↗</a></article>)}</div>
+</div></section>

@@ -1,0 +1,30 @@
+---
+import { projects } from "../data/projects";
+const filters = [["all", "Todos"], ["empresa", "Empresa"], ["personal", "Personales"]];
+const typeLabel = { empresa: "Empresa", personal: "Personal" };
+---
+<section id="proyectos"><div class="wrap">
+  <p class="section-label" data-reveal="up">03 · Proyectos</p>
+  <h2 class="section-title" data-reveal="up">Trabajo para empresas<br />y proyectos propios.</h2>
+  <div class="project-filters" role="group" aria-label="Filtrar proyectos" data-reveal="up">
+    <span class="filter-pill" aria-hidden="true"></span>
+    {filters.map(([id, label], i) => <button class={`pfilter${i === 0 ? " is-active" : ""}`} data-pfilter={id} aria-pressed={i === 0 ? "true" : "false"}>{label}</button>)}
+  </div>
+  <div class="project-grid">
+    {projects.map((p) => (
+      <article class={`project-card tilt${p.featured ? " is-featured" : ""}`} data-type={p.type} data-reveal="up" style={`--hue:${p.hue}`}>
+        <div class="project-cover" aria-hidden="true"><span class="cover-orb"></span><span class="cover-grid"></span><span class="cover-mark">{p.title.slice(0, 2).toUpperCase()}</span></div>
+        <div class="project-body">
+          <div class="project-meta"><span class={`badge badge-${p.type}`}>{typeLabel[p.type]}</span><span>{p.year}</span>{p.company && <span>· {p.company}</span>}</div>
+          <h3>{p.title}</h3>
+          <p>{p.summary}</p>
+          {p.role && <p class="project-role">{p.role}</p>}
+          {p.metrics && <ul class="metrics">{p.metrics.map((m) => <li><strong>{m.value}</strong><span>{m.label}</span></li>)}</ul>}
+          <ul class="chips">{p.stack.map((s) => <li>{s}</li>)}</ul>
+          {p.links && <div class="project-links">{p.links.demo && <a href={p.links.demo}>Demo ↗</a>}{p.links.repo && <a href={p.links.repo}>Código ↗</a>}</div>}
+        </div>
+        <span class="card-glow" aria-hidden="true"></span>
+      </article>
+    ))}
+  </div>
+</div></section>

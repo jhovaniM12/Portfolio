@@ -1,0 +1,32 @@
+---
+import { Image } from "astro:assets";
+import profile from "../images/profile.jpeg";
+import galaxy from "../images/galaxy-hero.webp";
+import { name, skills, iconUrl } from "../data/site";
+---
+<header class="hero" id="inicio">
+  <div class="hero-galaxy" data-parallax="-0.08" style={`background-image: url(${galaxy.src})`} aria-hidden="true"></div>
+  <canvas class="stars" aria-hidden="true"></canvas>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="hero-identity"><span class="hero-name">{name}</span><span class="eyebrow">Software Engineer · Full Stack Developer</span></p>
+      <h1 aria-label="Transformo ideas en experiencias digitales.">
+        <span class="line" aria-hidden="true"><span>Transformo ideas</span></span>
+        <span class="line" aria-hidden="true"><span>en <em class="shimmer">experiencias</em></span></span>
+        <span class="line" aria-hidden="true"><span>digitales.</span></span>
+      </h1>
+      <p class="hero-lead">Desarrollo productos digitales sólidos, desde interfaces frontend hasta servicios backend, APIs y arquitectura cloud.</p>
+      <div class="actions"><a class="button primary magnetic" href="#proyectos">Ver proyectos <span>↗</span></a><a class="button outline magnetic" href="#contacto">Contacto</a><button class="button cv-pending" type="button" disabled aria-describedby="cv-status">Descargar CV <span aria-hidden="true">↓</span></button></div>
+      <p class="pending-note" id="cv-status">CV próximamente</p>
+    </div>
+    <div class="portrait-wrap" data-parallax="0.05">
+      <div class="portrait tilt" data-tilt-max="6"><Image src={profile} alt={`Retrato de ${name}`} loading="eager" fetchpriority="high" /></div>
+    </div>
+  </div>
+  <div class="wrap tech-strip">
+    <span>Construyo con</span>
+    {[...skills[0].items.slice(0, 4), skills[1].items[2], skills[2].items[0]].map((s) => <span class="tech-icon-frame" title={s.name}><img class="tech-icon" src={iconUrl(s)} alt={s.name} width="26" height="26" loading="lazy" /></span>)}
+    <div class="social-links" aria-label="Redes sociales"><span class="social-pending">GitHub · enlace pendiente</span><span class="social-pending">LinkedIn · enlace pendiente</span></div>
+  </div>
+  <a class="scroll-cue" href="#sobre-mi" aria-label="Bajar"><span></span></a>
+</header>
