@@ -1,13 +1,21 @@
 ---
 import { skills, iconUrl } from "../data/site";
+import { getTranslations, type Locale } from "../i18n/translations";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getTranslations(locale).stack;
 const marquee = skills.flatMap((g) => g.items);
 ---
 <section id="stack"><div class="wrap">
-  <p class="section-label" data-reveal="up">02 · Stack</p>
-  <h2 class="section-title" data-reveal="up">Tecnologías y herramientas</h2>
+  <p class="section-label" data-reveal="up">{t.label}</p>
+  <h2 class="section-title" data-reveal="up">{t.title}</h2>
 </div>
 <div class="marquee" aria-hidden="true"><div class="marquee-track">{[0, 1].map(() => marquee.map((s) => <span class="marquee-item"><img src={iconUrl(s)} alt="" width="22" height="22" loading="lazy" />{s.name}</span>))}</div></div>
 <div class="wrap">
-  <div class="stack-filters" role="group" aria-label="Filtrar tecnologías"><button class="filter is-active" data-filter="all" aria-pressed="true">Todo</button>{skills.map((g) => <button class="filter" data-filter={g.category} aria-pressed="false">{g.category}</button>)}</div>
-  <div class="stack-list">{skills.map((g, i) => <div class="stack-row" data-category={g.category} data-reveal="up" data-reveal-delay={i + 1}><h3>{g.category}</h3><div class="skill-grid">{g.items.map((s) => <span class="skill-card"><img src={iconUrl(s)} alt="" aria-hidden="true" width="30" height="30" loading="lazy" /><span>{s.name}</span></span>)}</div></div>)}</div>
+  <div class="stack-filters" role="group" aria-label={t.filterAria}><button class="filter is-active" data-filter="all" aria-pressed="true">{t.filterAll}</button>{skills.map((g) => <button class="filter" data-filter={g.id} aria-pressed="false">{t.categories[g.id]}</button>)}</div>
+  <div class="stack-list">{skills.map((g, i) => <div class="stack-row" data-category={g.id} data-reveal="up" data-reveal-delay={i + 1}><h3>{t.categories[g.id]}</h3><div class="skill-grid">{g.items.map((s) => <span class="skill-card"><img src={iconUrl(s)} alt="" aria-hidden="true" width="30" height="30" loading="lazy" /><span>{s.name}</span></span>)}</div></div>)}</div>
 </div></section>

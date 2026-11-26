@@ -1,4 +1,9 @@
-export function initializeReveal() {
+let activeObserver: IntersectionObserver | null = null;
+
+export function initializeReveal(options: { immediateInView?: boolean } = {}) {
+  activeObserver?.disconnect();
+  activeObserver = null;
+
   const revealTargets = document.querySelectorAll<HTMLElement>("[data-reveal]");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -13,14 +18,20 @@ export function initializeReveal() {
       },
       { threshold: 0.12, rootMargin: "0px 0px -48px 0px" },
     );
+    activeObserver = observer;
 
-    document.documentElement.classList.add("motion-ready");
     revealTargets.forEach((target) => {
       const delay = Number(target.dataset.revealDelay);
       if (Number.isFinite(delay) && delay > 0) {
         target.style.setProperty("--reveal-delay", `${Math.min(delay, 8) * 90}ms`);
       }
-      observer.observe(target);
+      if (options.immediateInView && target.getBoundingClientRect().top < window.innerHeight + 80) {
+        target.classList.add("is-visible");
+      } else {
+        observer.observe(target);
+      }
     });
+
+    document.documentElement.classList.add("motion-ready");
   }
 }

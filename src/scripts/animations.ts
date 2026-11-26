@@ -7,6 +7,14 @@ gsap.registerPlugin(ScrollTrigger, Flip);
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
+let activeCleanups: (() => void)[] = [];
+
+export function cleanupAnimations() {
+  activeCleanups.forEach((fn) => fn());
+  activeCleanups = [];
+  ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+}
+
 function heroIntro() {
   const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
   tl.from(".hero-identity", { y: 20, opacity: 0, duration: 0.7 })
@@ -16,23 +24,37 @@ function heroIntro() {
     .from(".portrait-wrap", { y: 40, opacity: 0, scale: 0.94, duration: 1.2 }, 0.25)
     .from(".tech-strip > *", { y: 14, opacity: 0, duration: 0.6, stagger: 0.06 }, "-=0.8")
     .from(".site-nav", { yPercent: -100, duration: 0.8 }, 0);
+  activeCleanups.push(() => tl.kill());
 }
 
 function parallax() {
-  document.querySelectorAll<HTMLElement>("[data-parallax]").forEach((el) => {
-    const factor = Number(el.dataset.parallax) || 0;
-    gsap.to(el, {
-      y: () => factor * window.innerHeight * 3,
+  const mm = gsap.matchMedia();
+  const galaxy = document.querySelector<HTMLElement>(".hero-galaxy[data-parallax]");
+  if (galaxy) {
+    const factor = Number(galaxy.dataset.parallax) || -0.08;
+    gsap.to(galaxy, {
+      y: () => factor * window.innerHeight * 2,
+      ease: "none",
+      scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true },
+    });
+  }
+  mm.add("(min-width: 901px)", () => {
+    const portrait = document.querySelector<HTMLElement>(".portrait-wrap[data-parallax]");
+    if (!portrait) return;
+    gsap.to(portrait, {
+      y: () => -Math.min(44, window.innerHeight * 0.05),
       ease: "none",
       scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true },
     });
   });
+  activeCleanups.push(() => mm.revert());
 }
 
 function scrollProgress() {
   const bar = document.querySelector<HTMLElement>(".scroll-progress");
   const nav = document.querySelector<HTMLElement>(".site-nav");
   if (!bar) return;
+  nav?.classList.toggle("is-compact", window.scrollY > 40);
   gsap.to(bar, { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: 0.3 } });
   ScrollTrigger.create({
     start: 40,
@@ -41,11 +63,14 @@ function scrollProgress() {
   });
 }
 
-function counters() {
+function counters(immediateInView: boolean) {
   document.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {
     const end = Number(el.dataset.count);
     const suffix = el.dataset.suffix ?? "";
-    if (reduced) { el.textContent = `${end}${suffix}`; return; }
+    if (reduced || (immediateInView && el.getBoundingClientRect().top < window.innerHeight + 80)) {
+      el.textContent = `${end}${suffix}`;
+      return;
+    }
     const state = { v: 0 };
     ScrollTrigger.create({
       trigger: el,
@@ -98,19 +123,21 @@ function magnetic() {
   });
 }
 
-function cursorGlow() {
+function cursorGlow(signal: AbortSignal) {
   if (!finePointer) return;
+  document.querySelectorAll(".cursor-glow").forEach((el) => el.remove());
   const glow = document.createElement("div");
   glow.className = "cursor-glow";
   glow.setAttribute("aria-hidden", "true");
   document.body.appendChild(glow);
   const x = gsap.quickTo(glow, "x", { duration: 0.6, ease: "power3.out" });
   const y = gsap.quickTo(glow, "y", { duration: 0.6, ease: "power3.out" });
-  window.addEventListener("pointermove", (e) => { glow.classList.add("is-on"); x(e.clientX); y(e.clientY); }, { passive: true });
-  document.addEventListener("pointerleave", () => glow.classList.remove("is-on"));
+  window.addEventListener("pointermove", (e) => { glow.classList.add("is-on"); x(e.clientX); y(e.clientY); }, { passive: true, signal });
+  document.addEventListener("pointerleave", () => glow.classList.remove("is-on"), { signal });
+  activeCleanups.push(() => glow.remove());
 }
 
-function stars() {
+function stars(signal: AbortSignal) {
   const canvas = document.querySelector<HTMLCanvasElement>(".stars");
   const ctx = canvas?.getContext("2d");
   if (!canvas || !ctx) return;
@@ -137,15 +164,21 @@ function stars() {
     if (running && !reduced) raf = requestAnimationFrame(draw);
   };
   resize();
-  window.addEventListener("resize", resize);
+  window.addEventListener("resize", resize, { signal });
   if (reduced) { draw(0); return; }
-  new IntersectionObserver(([e]) => {
+  const io = new IntersectionObserver(([e]) => {
     if (e.isIntersecting && !running) { running = true; raf = requestAnimationFrame(draw); }
     else if (!e.isIntersecting) { running = false; cancelAnimationFrame(raf); }
-  }).observe(canvas);
+  });
+  io.observe(canvas);
+  activeCleanups.push(() => {
+    running = false;
+    cancelAnimationFrame(raf);
+    io.disconnect();
+  });
 }
 
-function projectFilters() {
+function projectFilters(signal: AbortSignal) {
   const group = document.querySelector<HTMLElement>(".project-filters");
   const pill = group?.querySelector<HTMLElement>(".filter-pill");
   const buttons = [...(group?.querySelectorAll<HTMLButtonElement>(".pfilter") ?? [])];
@@ -154,7 +187,7 @@ function projectFilters() {
   const movePill = (btn: HTMLElement) => { pill.style.width = `${btn.offsetWidth}px`; pill.style.transform = `translateX(${btn.offsetLeft}px)`; };
   const active = () => buttons.find((b) => b.classList.contains("is-active")) ?? buttons[0];
   movePill(active());
-  window.addEventListener("resize", () => movePill(active()));
+  window.addEventListener("resize", () => movePill(active()), { signal });
   buttons.forEach((btn) => btn.addEventListener("click", () => {
     const filter = btn.dataset.pfilter;
     buttons.forEach((b) => { b.classList.toggle("is-active", b === btn); b.setAttribute("aria-pressed", String(b === btn)); });
@@ -170,17 +203,22 @@ function projectFilters() {
   }));
 }
 
-export function initAnimations() {
-  projectFilters();
-  if (reduced) { counters(); return; }
-  heroIntro();
+export function initAnimations(options: { skipIntro?: boolean } = {}) {
+  cleanupAnimations();
+  const controller = new AbortController();
+  activeCleanups.push(() => controller.abort());
+
+  projectFilters(controller.signal);
+  if (reduced) { counters(true); return; }
+  if (!options.skipIntro) heroIntro();
   parallax();
   scrollProgress();
-  counters();
+  counters(Boolean(options.skipIntro));
   timeline();
   sectionHeadings();
   tilt();
   magnetic();
-  cursorGlow();
-  stars();
+  cursorGlow(controller.signal);
+  stars(controller.signal);
+  ScrollTrigger.refresh();
 }

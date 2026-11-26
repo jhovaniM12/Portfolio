@@ -1,8 +1,19 @@
+---
+import { getTranslations, type Locale } from "../i18n/translations";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getTranslations(locale).experience;
+---
 <section id="experiencia"><div class="wrap">
-  <p class="section-label" data-reveal="up">05 · Experiencia</p>
-  <h2 class="section-title" data-reveal="up">Experiencia profesional</h2>
+  <p class="section-label" data-reveal="up">{t.label}</p>
+  <h2 class="section-title" data-reveal="up">{t.title}</h2>
   <div class="timeline"><span class="timeline-line" aria-hidden="true"></span>
-    <article data-reveal="up"><small>Actualidad</small><h3>Software Engineer · Full Stack Developer</h3><p>Frontend, backend, integraciones entre sistemas, desarrollo SaaS e infraestructura cloud.</p></article>
-    <article data-reveal="up" data-reveal-delay="2"><small>Aprendizaje continuo</small><h3>Construcción de productos digitales</h3><p>Exploración constante de nuevas herramientas, patrones de arquitectura y mejores prácticas de desarrollo.</p></article>
+    {t.items.map((item, i) => (
+      <article data-reveal="up" data-reveal-delay={i > 0 ? i + 1 : undefined}><small>{item.period}</small><h3>{item.title}</h3><p>{item.description}</p></article>
+    ))}
   </div>
 </div></section>

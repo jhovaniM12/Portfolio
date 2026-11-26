@@ -1,8 +1,16 @@
 ---
-import { certificates } from "../data/site";
+import { name } from "../data/site";
+import { getTranslations, type Locale } from "../i18n/translations";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getTranslations(locale).certificates;
 ---
 <section class="alt-section" id="certificados"><div class="wrap">
-  <p class="section-label" data-reveal="up">04 · Formación</p>
-  <h2 class="section-title" data-reveal="up">Certificaciones y formación</h2>
-  <div class="certificate-grid">{certificates.map((c, i) => <article class="certificate tilt" data-tilt-max="5" data-reveal="up" data-reveal-delay={i + 1}><div class="certificate-art"><span>JM</span><small>credential 0{i + 1}</small></div><p>Jhovani Moreno</p><h3>{c}</h3><small>Información disponible próximamente</small><a href="#contacto">Ver credencial ↗</a></article>)}</div>
+  <p class="section-label" data-reveal="up">{t.label}</p>
+  <h2 class="section-title" data-reveal="up">{t.title}</h2>
+  <div class="certificate-grid">{t.items.map((c, i) => <article class="certificate tilt" data-tilt-max="5" data-reveal="up" data-reveal-delay={i + 1}><div class="certificate-art"><span>JM</span><small>{t.credentialPrefix} 0{i + 1}</small></div><p>{name}</p><h3>{c}</h3><small>{t.soon}</small><a href="#contacto">{t.viewCredential} ↗</a></article>)}</div>
 </div></section>

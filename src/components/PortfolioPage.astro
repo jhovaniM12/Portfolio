@@ -1,0 +1,129 @@
+---
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import Nav from "./Nav.astro";
+import Hero from "./Hero.astro";
+import About from "./About.astro";
+import Stack from "./Stack.astro";
+import Projects from "./Projects.astro";
+import Certificates from "./Certificates.astro";
+import Experience from "./Experience.astro";
+import Contact from "./Contact.astro";
+import { getTranslations, type Locale } from "../i18n/translations";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const meta = getTranslations(locale).meta;
+const esUrl = getRelativeLocaleUrl("es", "");
+const enUrl = getRelativeLocaleUrl("en", "");
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={meta.description} />
+    <meta name="theme-color" content="#070f1c" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" hreflang="es" href={esUrl} />
+    <link rel="alternate" hreflang="en" href={enUrl} />
+    <link rel="alternate" hreflang="x-default" href={esUrl} />
+    <title>{meta.title}</title>
+    <ClientRouter />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">{meta.skipLink}</a>
+    <Nav locale={locale} />
+    <Hero locale={locale} />
+    <main id="contenido">
+      <About locale={locale} />
+      <Stack locale={locale} />
+      <Projects locale={locale} />
+      <Certificates locale={locale} />
+      <Experience locale={locale} />
+    </main>
+    <Contact locale={locale} />
+
+    <script>
+      import { initializeReveal } from "../scripts/reveal";
+      import { initAnimations, cleanupAnimations } from "../scripts/animations";
+
+      let isLanguageSwitch = false;
+      let savedScrollY: number | null = null;
+      let pageController: AbortController | null = null;
+
+      function setupPage() {
+        pageController?.abort();
+        pageController = new AbortController();
+        const { signal } = pageController;
+
+        const skipIntro = isLanguageSwitch;
+        isLanguageSwitch = false;
+
+        initializeReveal({ immediateInView: skipIntro });
+        initAnimations({ skipIntro });
+
+        const menu = document.querySelector<HTMLButtonElement>('.menu-toggle');
+        const links = document.querySelector<HTMLElement>('.nav-links');
+        const setMenu = (open: boolean) => { links?.classList.toggle('is-open', open); menu?.setAttribute('aria-expanded', String(open)); };
+        menu?.addEventListener('click', () => setMenu(menu.getAttribute('aria-expanded') !== 'true'), { signal });
+        links?.querySelectorAll<HTMLAnchorElement>('a').forEach((link) => link.addEventListener('click', () => setMenu(false), { signal }));
+        document.addEventListener('keydown', (event) => { if (event.key === 'Escape') setMenu(false); }, { signal });
+
+        const sections = [...document.querySelectorAll<HTMLElement>('#inicio, main section[id], #contacto')];
+        const navLinks = [...document.querySelectorAll<HTMLAnchorElement>('.nav-links a')];
+        if ('IntersectionObserver' in window) {
+          const sectionObserver = new IntersectionObserver((entries) => entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            navLinks.forEach((link) => {
+              if (link.hash === `#${entry.target.id}`) link.setAttribute('aria-current', 'location');
+              else link.removeAttribute('aria-current');
+            });
+          }), { rootMargin: '-25% 0px -65% 0px' });
+          sections.forEach((section) => sectionObserver.observe(section));
+          signal.addEventListener('abort', () => sectionObserver.disconnect());
+        }
+
+        document.querySelectorAll<HTMLAnchorElement>('.language-option[href]').forEach((link) => {
+          link.addEventListener('click', (event) => {
+            if (link.classList.contains('is-current')) {
+              event.preventDefault();
+              return;
+            }
+            isLanguageSwitch = true;
+            savedScrollY = window.scrollY;
+          }, { signal });
+        });
+
+        document.querySelectorAll<HTMLButtonElement>('.filter').forEach((button) => button.addEventListener('click', () => {
+          const filter = button.dataset.filter;
+          document.querySelectorAll<HTMLButtonElement>('.filter').forEach((item) => { item.classList.toggle('is-active', item === button); item.setAttribute('aria-pressed', String(item === button)); });
+          document.querySelectorAll<HTMLElement>('.stack-row').forEach((row) => { row.toggleAttribute('hidden', filter !== 'all' && row.dataset.category !== filter); });
+        }, { signal }));
+
+        const area = document.querySelector<HTMLTextAreaElement>('#f-mensaje');
+        const counter = document.querySelector<HTMLElement>('.counter');
+        area?.addEventListener('input', () => { if (counter) counter.textContent = `${area.value.length} / ${area.maxLength}`; }, { signal });
+      }
+
+      document.addEventListener('astro:before-swap', () => {
+        pageController?.abort();
+        cleanupAnimations();
+      });
+
+      document.addEventListener('astro:after-swap', () => {
+        if (savedScrollY !== null) {
+          window.scrollTo({ top: savedScrollY, behavior: 'instant' });
+          savedScrollY = null;
+        }
+      });
+
+      document.addEventListener('astro:page-load', setupPage);
+    </script>
+  </body>
+</html>
